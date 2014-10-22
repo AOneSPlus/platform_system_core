@@ -40,10 +40,6 @@
 #include <cutils/uevent.h>
 #include <cutils/properties.h>
 
-#include <pthread.h>
-#include <linux/android_alarm.h>
-#include <linux/rtc.h>
-
 #ifdef CHARGER_ENABLE_SUSPEND
 #include <suspend/autosuspend.h>
 #endif
@@ -211,17 +207,6 @@ static struct android::BatteryProperties *batt_prop;
 static int char_width;
 static int char_height;
 static bool minui_inited;
-
-enum alarm_time_type {
-    ALARM_TIME,
-    RTC_TIME,
-};
-
-/*
- * shouldn't be changed after
- * reading from alarm register
- */
-static time_t alm_secs;
 
 static int set_tricolor_led(int on, int color)
 {
@@ -891,7 +876,7 @@ static void charger_event_handler(uint32_t /*epevents*/)
         ev_dispatch();
 }
 
-void healthd_mode_charger_init(struct healthd_config* config)
+void healthd_mode_charger_init(struct healthd_config* /*config*/)
 {
     int ret;
     int charging_enabled = 1;
@@ -901,17 +886,7 @@ void healthd_mode_charger_init(struct healthd_config* config)
 
     dump_last_kmsg();
 
-    LOGW("--------------- STARTING CHARGER MODE ---------------\n");
-
-    if (mode == NORMAL) {
-        /* check the charging is enabled or not */
-        ret = read_file_int(CHARGING_ENABLED_PATH, &charging_enabled);
-        if (!ret && !charging_enabled) {
-            /* if charging is disabled, reboot and exit power off charging */
-            LOGI("android charging is disabled, exit!\n");
-            android_reboot(ANDROID_RB_RESTART, 0, 0);
-        }
-    }
+    LOGI("--------------- STARTING CHARGER MODE ---------------\n");
 
     if (mode == NORMAL) {
         /* check the charging is enabled or not */
@@ -960,5 +935,4 @@ void healthd_mode_charger_init(struct healthd_config* config)
     charger->next_screen_transition = -1;
     charger->next_key_check = -1;
     charger->next_pwr_check = -1;
-    healthd_config = config;
 }
