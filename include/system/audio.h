@@ -64,7 +64,6 @@ typedef enum {
                                         * and must be routed to speaker
                                         */
     AUDIO_STREAM_DTMF             = 8,
-<<<<<<< HEAD
     AUDIO_STREAM_TTS              = 9,  /* Transmitted Through Speaker.
                                          * Plays over speaker only, silent on other devices.
                                          */
